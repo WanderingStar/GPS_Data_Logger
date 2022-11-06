@@ -277,14 +277,32 @@ def retrieve_data(connection_handler, session_id=-1):
         :return: A list of location objects and None if an exception arises
     """
 
+    if session_id == -1:
+        retrieve_data_where(connection_handler)
+    else:
+        retrieve_data_where(connection_handler, f"session_id={session_id}")
+
+
+def retrieve_data_where(connection_handler, where=None):
+
+    """ Retrieves the location data stored in the database.
+    
+    Caller is responsible for ensuring the where clause doesn't
+    include a SQL Injection attack!
+
+        :param connection_handler: the connection handler object
+        :param where: the where clause to use
+        :return: A list of location objects and None if an exception arises
+    """
+
     try:
 
         # Check the list of tables
         cursor = connection_handler.cursor()
-        if session_id == -1:
+        if where is None:
             cursor.execute(f"SELECT * FROM location;")
         else:
-            cursor.execute(f"SELECT * FROM location WHERE session_id={session_id};")
+            cursor.execute(f"SELECT * FROM location WHERE {where};")
 
         rows = cursor.fetchall()
 
