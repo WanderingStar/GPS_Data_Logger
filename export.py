@@ -147,6 +147,7 @@ if __name__ == '__main__':
                 export.save_as_gpx(output_filename, data)
             elif format == 'kml':
                 export.save_as_kml(output_filename, data)
+            database.disconnect(connection_handler)
 
     except Exception as error:
         logger.error(f"Exception: {str(error)}")
