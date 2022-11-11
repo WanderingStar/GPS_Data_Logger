@@ -22,7 +22,7 @@ def successor(prefix):
     A value just after the supplied timestamp prefix
     """
     completed = complete(prefix)
-    dt = datetime.fromisoformat(prefix)
+    dt = datetime.fromisoformat(completed)
     if re.search(":\d\d:\d\d$", prefix):
         return dt + relativedelta(seconds=1)
     if re.search(":\d\d:\d$", prefix):
