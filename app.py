@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 from multiprocessing import Queue
 
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     logger.info(f'Main PID: {os.getpid()}')
 
     # Initialization
-    config_file = "./config/config.json"
+    config_file = os.path.dirname(__file__) + "/config/config.json"
 
     # Setup telemetry queue used by the Monitor and Recorder
     q = Queue()

@@ -1,10 +1,10 @@
-{ 
+{
     "gpsd_ip_address": "127.0.0.1",
     "gpsd_port" : 2947,
     "start_gpsd": false,
     "default_device": "/dev/serial0",
     "enable_new_session": true,
-    "database_filename" : "gps_logger.db",
+    "database_filename" : "/home/pi/GPS_Data_Logger/gps_logger.db",
     "database" : "gps_logger",
     "session_tablename" : "session",
     "location_tablename" : "location",
