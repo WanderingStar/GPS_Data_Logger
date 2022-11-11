@@ -2,6 +2,8 @@
 
 import argparse
 from datetime import datetime, timezone
+import json
+import sys
 from dateutil.relativedelta import relativedelta
 import re
 
@@ -47,13 +49,13 @@ def successor(prefix):
     if re.search("-1$", prefix):
         # kind of nonsensical
         return datetime(year=dt.year + 1, month=1, day=1)
-    if re.match("\d\d\d\d-?$"):
+    if re.match("\d\d\d\d-?$", prefix):
         return datetime(year=dt.year + 1, month=1, day=1)
-    if re.match("\d\d\d$"):
+    if re.match("\d\d\d$", prefix):
         return datetime(year=dt.year + 10, month=1, day=1)
-    if re.match("\d\d$"):
+    if re.match("\d\d$", prefix):
         return datetime(year=dt.year + 100, month=1, day=1)
-    if re.match("\d$"):
+    if re.match("\d$", prefix):
         return datetime(year=dt.year + 1000, month=1, day=1)
     # Y10K bug
     return None
@@ -75,17 +77,19 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         prog = 'GPS data export',
         description = 'Exports data from the GPS database')
-    parser.add_argument('output_filename')
+    parser.add_argument('output_filename', nargs='?')
     parser.add_argument('-s', '--start', help='export data with timestamps between this and end')
     parser.add_argument('-e', '--end', help='export data with timestamps between this and start')
     parser.add_argument('-p', '--prefix', help='export data with timestamps starting with this prefix eg. 2022-11- for a month')
-    parser.add_argument('-l', '--last', type=int, help='export data from most recent N seconds')
+    parser.add_argument('-l', '--last', action='store_true', help='export the most recent location')
 
     date_prefix = re.compile('^\d(\d(\d(\d(-(\d(\d(-(\d(\d(T(\d(\d(:(\d(\d(:(\d(\d)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?)?$')
     args = parser.parse_args()
 
     output_filename = args.output_filename
-    if output_filename.endswith('.gpx'):
+    if not output_filename:
+        format = 'stdout'
+    elif output_filename.endswith('.gpx'):
         format = 'gpx'
     elif output_filename.endswith('.kml'):
         format = 'kml'
@@ -95,7 +99,7 @@ if __name__ == '__main__':
 
     where = None
     if args.start is not None and args.end is not None:
-        if args.prefix is not None or args.last is not None:
+        if args.prefix is not None or args.last:
             print("Error: Provide only one of start/end, prefix, or last")
             exit(1)
 
@@ -110,7 +114,7 @@ if __name__ == '__main__':
 
         where = where_local_time_between(start, end)
     elif args.prefix is not None:
-        if args.last is not None or args.start is not None or args.end is not None:
+        if args.last or args.start is not None or args.end is not None:
             print("Error: Provide only one of start/end, prefix, or last")
             exit(1)
         
@@ -120,14 +124,13 @@ if __name__ == '__main__':
             exit(1)
 
         where = where_local_time_between(prefix, prefix)
-    elif args.last is not None:
-        print("Error: last is not implemented yet")
-        exit(1)
+    elif args.last:
+        where = "utc_time IS NOT NULL ORDER BY utc_time DESC LIMIT 1"
     else:
         print("Error: Provide one of start/end, prefix, or last")
         exit(1)
 
-    print(where)
+    #print(where)
 
     # Initialization
     config_file = "./config/config.json"
@@ -142,8 +145,10 @@ if __name__ == '__main__':
         # if no connection handler, then give up
         if connection_handler is not None:
             data = database.retrieve_data_where(connection_handler, where)
-            print(f"Found {len(data)} locations")
-            if format == 'gpx':
+            print(f"Found {len(data)} locations", file=sys.stderr)
+            if format == 'stdout':
+                print(json.dumps(data, default=lambda o: o.__dict__))
+            elif format == 'gpx':
                 export.save_as_gpx(output_filename, data)
             elif format == 'kml':
                 export.save_as_kml(output_filename, data)

@@ -26,7 +26,7 @@ def save_as_gpx(filename, data):
                  f"""<trk><trkseg>\n"""
         footer = f"""</trkseg></trk></gpx>\n"""
 
-        with open(filename, "a+") as outfile:
+        with open(filename, "w") as outfile:
             
             outfile.write(header)
 
