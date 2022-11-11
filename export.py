@@ -47,7 +47,7 @@ def successor(prefix):
     if re.search("-1$", prefix):
         # kind of nonsensical
         return datetime(year=dt.year + 1, month=1, day=1)
-    if re.match("\d\d\d\d$"):
+    if re.match("\d\d\d\d-?$"):
         return datetime(year=dt.year + 1, month=1, day=1)
     if re.match("\d\d\d$"):
         return datetime(year=dt.year + 10, month=1, day=1)
