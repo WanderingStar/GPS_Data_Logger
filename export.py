@@ -6,6 +6,7 @@ import json
 import sys
 from dateutil.relativedelta import relativedelta
 import re
+import os
 
 from config import config
 from core import database, export
@@ -133,7 +134,7 @@ if __name__ == '__main__':
     #print(where)
 
     # Initialization
-    config_file = "./config/config.json"
+    config_file = os.path.dirname(__file__) + "/config/config.json"
 
     # Read the application config
     appConfig = config.AppConfig(config_file)

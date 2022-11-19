@@ -3,6 +3,7 @@
 from datetime import datetime, timezone
 import re
 import mechanicalsoup
+import os
 
 from config import config
 from core import database, export
@@ -15,7 +16,7 @@ if __name__ == '__main__':
     where = "utc_time IS NOT NULL ORDER BY utc_time DESC LIMIT 1"
 
     # Initialization
-    config_file = "./config/config.json"
+    config_file = os.path.dirname(__file__) + "/config/config.json"
 
     # Read the application config
     appConfig = config.AppConfig(config_file)
@@ -31,6 +32,7 @@ if __name__ == '__main__':
                 lat = round(data[0].latitude, ndigits=4)
                 lon = round(data[0].longitude, ndigits=4)
                 browser = mechanicalsoup.StatefulBrowser(user_agent='MechanicalSoup')
+                # yes, yes, shouldn't check this bit in
                 response = browser.open("http://localhost/views.php?view=Settings", auth=("birdnet", ""))
                 if not response.ok:
                     print(f"Got {response.status_code} from {browser.get_url()}")
@@ -42,7 +44,8 @@ if __name__ == '__main__':
                 if not response.ok:
                     print(f"Got {response.status_code} from {browser.get_url()}")
                     exit(1)
-        #print(f"Set lat, lon to ({lat}, {lon})")
+        with open('/home/pi/birdnet_gps.log', 'a') as f:
+            print(f"Set lat, lon to ({lat}, {lon})", file=f)
 
     except Exception as error:
         logger.error(f"Exception: {str(error)}")
