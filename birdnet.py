@@ -40,6 +40,8 @@ if __name__ == '__main__':
                 form = browser.select_form("#basicform")
                 form["latitude"] = lat
                 form["longitude"] = lon
+                form["date"] = None
+                form["time"] = None
                 response = browser.submit_selected(auth=("birdnet", ""))
                 if not response.ok:
                     print(f"Got {response.status_code} from {browser.get_url()}")
